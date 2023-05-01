@@ -1,2 +1,3 @@
 lista para mejorar asistente
-crear avatares y mejorar interfaz
+- crear avatares y mejorar interfaz
+
