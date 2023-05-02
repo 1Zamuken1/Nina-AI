@@ -68,9 +68,11 @@ engine.setProperty('rate', 145)
 # for voice in voices:
 #   print(voice)
 
-sites = dict()
+pages = dict()
 
 files = dict()
+
+programs = dict()
 
 
 def talk(text):
@@ -106,6 +108,7 @@ def write(f):
     sub.Popen("notas.txt", shell=True)
 
 def open_w_files():
+    global namefile_entry, path_files_entry
     window_files = Toplevel()
     window_files.title("Agregar archivos")
     window_files.configure(bg="#000046")
@@ -124,13 +127,14 @@ def open_w_files():
     path_label = Label(window_files, text="Ruta del archivo", fg="white", bg="#000046", font=('Lato', 12, 'bold'))
     path_label.pack(pady=2)
 
-    path_entry = Entry(window_files, width=35)
-    path_entry.pack(pady=1)
+    path_files_entry = Entry(window_files, width=35)
+    path_files_entry.pack(pady=1)
 
-    save_button = Button(window_files, text="Guardar", bg='#0082c8', fg="white", width=8, height=1) #, command=add_files)
+    save_button = Button(window_files, text="Guardar", bg='#0082c8', fg="white", width=8, height=1, command=add_files)
     save_button.pack(pady=4)
 
 def open_w_apps():
+    global nameapp_entry, path_apps_entry
     window_apps = Toplevel()
     window_apps.title("Agregar apps")
     window_apps.configure(bg="#11998e")
@@ -143,19 +147,19 @@ def open_w_apps():
     name_label = Label(window_apps, text="Nombre de la app", fg="white", bg="#11998e", font=('Lato', 12, 'bold'))
     name_label.pack(pady=2)
 
-    namefile_entry = Entry(window_apps)
-    namefile_entry.pack(pady=1)
+    nameapp_entry = Entry(window_apps)
+    nameapp_entry.pack(pady=1)
 
     path_label = Label(window_apps, text="Ruta de la app", fg="white", bg="#11998e", font=('Lato', 12, 'bold'))
     path_label.pack(pady=2)
 
-    path_entry = Entry(window_apps, width=35)
-    path_entry.pack(pady=1)
+    path_apps_entry = Entry(window_apps, width=35)
+    path_apps_entry.pack(pady=1)
 
-    save_button = Button(window_apps, text="Guardar", bg='#78ffd6', fg="black", width=8,
-                         height=1)  # , command=add_files)
+    save_button = Button(window_apps, text="Guardar", bg='#78ffd6', fg="black", width=8, height=1, command=add_apps)
     save_button.pack(pady=4)
 def open_w_pages():
+    global namepages_entry, path_pages_entry
     window_paginas = Toplevel()
     window_paginas.title("Agregar páginas")
     window_paginas.configure(bg="#F37335")
@@ -168,18 +172,52 @@ def open_w_pages():
     name_label = Label(window_paginas, text="Nombre de la página", fg="white", bg="#F37335", font=('Lato', 12, 'bold'))
     name_label.pack(pady=2)
 
-    namefile_entry = Entry(window_paginas)
-    namefile_entry.pack(pady=1)
+    namepages_entry = Entry(window_paginas)
+    namepages_entry.pack(pady=1)
 
     path_label = Label(window_paginas, text="URL de la página", fg="white", bg="#F37335", font=('Lato', 12, 'bold'))
     path_label.pack(pady=2)
 
-    path_entry = Entry(window_paginas, width=35)
-    path_entry.pack(pady=1)
+    path_pages_entry = Entry(window_paginas, width=35)
+    path_pages_entry.pack(pady=1)
 
-    save_button = Button(window_paginas, text="Guardar", bg='#605C3C', fg="white", width=8,
-                         height=1)  # , command=add_files)
+    save_button = Button(window_paginas, text="Guardar", bg='#605C3C', fg="white", width=8, height=1, command=add_pages)
     save_button.pack(pady=4)
+
+def add_files():
+    name_file = namefile_entry.get().strip()
+    path_file = path_files_entry.get().strip()
+
+    files[name_file] = path_file
+    save_data(name_file, path_file, "files.txt")
+    namefile_entry.delete(0, "end")
+    path_files_entry.delete(0, "end")
+
+def add_apps():
+    name_file = nameapp_entry.get().strip()
+    path_apps = path_apps_entry.get().strip()
+
+    programs[name_file] = path_apps
+    save_data(name_file, path_apps, "apps.txt")
+    nameapp_entry.delete(0, "end")
+    path_apps_entry.delete(0, "end")
+
+def add_pages():
+    name_page = namepages_entry.get().strip()
+    url_page = path_pages_entry.get().strip()
+
+    pages[name_page] = url_page
+    save_data(name_page, url_page, "pages.txt")
+    namepages_entry.delete(0, "end")
+    path_pages_entry.delete(0, "end")
+
+def save_data(key, value, file_name):
+    try:
+        with open(file_name, 'a') as f:
+            f.write(key + "," + value + "\n")
+    except FileNotFoundError as f:
+        file = open(file_name, 'a')
+        file.write(key + "," + value + "\n")
 
 def clock(rec):
     alarma = rec.replace('alarma', '')
@@ -222,15 +260,28 @@ def ok_nina():
         talk("Enseguida")
         colors.capture()
     elif 'abre' in rec:
-        for site in sites:
-            if site in rec:
-                sub.call(f'start opera.exe {sites[site]}', shell=True)
-                talk(f'Abriendo {site}')
+        task = rec.replace('abre', '').strip()
+        if task in pages:
+            for task in pages:
+                if task in rec:
+                    sub.call(f'start opera.exe {pages[task]}', shell=True)
+                    talk(f'Abriendo {task}')
+        elif task in programs:
+            for task in programs:
+                if task in rec:
+                    talk(f'Abriendo {task}')
+                    sub.Popen(programs[task])
+        else:
+            talk("Lo siento, parece que aún no has agregado la app o página web. Por favor usa los botones de Agregar ")
     elif 'archivo' in rec:
-        for file in files:
-            if file in rec:
-                sub.Popen([files[file]], shell=True)
-                talk(f'Abriendo{file}')
+        file = rec.replace('Archivo', '').strip()
+        if file in files:
+            for file in files:
+                if file in rec:
+                    sub.Popen([files[file]], shell=True)
+                    talk(f'Abriendo{file}')
+        else:
+            talk("Lo siento, parece que aún no has agregado el archivo. Por favor usa el botón de Agregar ")
     #elif 'archivo' in rec:
         #archivo = rec.replace('archivo', '')
         #archivo = archivo.strip()
