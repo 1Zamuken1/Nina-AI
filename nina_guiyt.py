@@ -68,11 +68,23 @@ engine.setProperty('rate', 145)
 # for voice in voices:
 #   print(voice)
 
+def charge_data(name_dict, name_file):
+    try:
+        with open(name_file) as f:
+            for line in f:
+                print(line.split)
+                (key, val) = line.split(",")
+                val = val.rstrip("\n")
+                name_dict[key] = val
+    except FileNotFoundError as e:
+        pass
+
 pages = dict()
-
+charge_data(pages, "pages.txt")
 files = dict()
-
+charge_data(files, "files.txt")
 programs = dict()
+charge_data(programs, "apps.txt")
 
 
 def talk(text):
