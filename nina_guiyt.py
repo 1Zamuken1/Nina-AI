@@ -33,21 +33,21 @@ comandos = """
             - Termina.........(Finalizar programa)
 """
 
-label_title = Label(main_window, text="Nina AI", bg="#ad5389", fg="#FFEFBA",
-                    font=('Lato', 30, 'bold'))
-label_title.pack(pady=10)
+#label_title = Label(main_window, text="Nina AI", bg="#ad5389", fg="#FFEFBA",
+ #                   font=('Lato', 30, 'bold'))
+#label_title.pack(pady=10)
 
-canvas_comandos = Canvas(bg="#7F00FF", height=500, width=580)
-canvas_comandos.place(x=1215, y=0)
+canvas_comandos = Canvas(bg="#7F00FF", height=200, width=300)
+canvas_comandos.place(x=5, y=380)
 canvas_comandos.create_text(90, 80, text=comandos, fill="white", font='Arial 10')
 
 text_info = Text(main_window, bg="#86A8E7", fg="black")
-text_info.place(x=1218, y=505, height=500, width=580)
+text_info.place(x=380, y=100, height=490, width=500)
 
 nina_photo = ImageTk.PhotoImage(Image.open("nina-AI.jpg"))
 window_photo = Label(main_window, image=nina_photo)
-window_photo.pack(padx=0)
-window_photo.pack(pady=5)
+window_photo.place(x=5, y=5)
+
 
 #def latam_voice():
  #   change_voice(4)
@@ -79,6 +79,8 @@ def charge_data(name_dict, name_file):
     except FileNotFoundError as e:
         pass
 
+
+#Diccionaries
 pages = dict()
 charge_data(pages, "pages.txt")
 files = dict()
@@ -231,6 +233,57 @@ def save_data(key, value, file_name):
         file = open(file_name, 'a')
         file.write(key + "," + value + "\n")
 
+def talk_pages():
+    if bool(pages) == True:
+        talk("has agregado las siguientes páginas web . . .")
+        for page in pages:
+            talk(page)
+    else:
+        talk("Aún no has agregado páginas web . . .")
+def talk_files():
+    if bool(files) == True:
+        talk("has agregado los siguientes archivos . . .")
+        for file in files:
+            talk(file)
+    else:
+        talk("Aún no has agregado archivos . . .")
+def talk_programs():
+    if bool(programs) == True:
+        talk("has agregado los siguientes programas . . .")
+        for program in programs:
+            talk(program)
+    else:
+        talk("Aún no has agregado programas . . .")
+
+def give_me_name():
+    talk("Hola, ¿cómo te llamas?")
+    name = listen()
+    name = name.strip()
+    talk(f"Bienvenido {name}")
+
+    try:
+        with open("name.txt", 'w') as f:
+            f.write(name)
+    except FileNotFoundError:
+        file = open("name.txt")
+        file.write(name)
+
+def say_hello():
+    if os.path.exists("name.txt"):
+        with open("name.txt") as f:
+            for name in f:
+                talk(f"Hola de nuevo, {name}")
+    else:
+        give_me_name()
+
+def thread_hello():
+    t = tr.Thread(target=say_hello)
+    t.start()
+
+thread_hello()
+
+
+
 def clock(rec):
     alarma = rec.replace('alarma', '')
     alarma = alarma.strip()
@@ -331,18 +384,30 @@ def ok_nina():
  #                           font=("Lato", 20, "bold"), command=latam_voice)
 button_listen = Button(main_window, text="Escuchar", fg="white", bg="#11998e",
                        font=("Lato", 20, "bold"), width=10, command=ok_nina)
-button_listen.pack(pady=10)
+button_listen.place(x=60, y=600, width=200, height=60)
 button_speak = Button(main_window, text="Hablar", fg="white", bg="#91EAE4",
                             font=("Lato", 20, "bold"), command=read_and_talk)
-button_speak.place(x=800, y=550, width=200, height=60)
+button_speak.place(x=550, y=600, width=200, height=60)
 button_add_files = Button(main_window, text="Agregar archivos", fg="white", bg="#000046",
                             font=("Lato", 20, "bold"), command=open_w_files)
-button_add_files.place(x=780, y=620, width=250, height=60)
+button_add_files.place(x=980, y=120, width=250, height=60)
 button_add_apps = Button(main_window, text="Agregar apps", fg="white", bg="#11998e",
                             font=("Lato", 20, "bold"), command=open_w_apps)
-button_add_apps.place(x=800, y=690, width=200, height=60)
+button_add_apps.place(x=980, y=190, width=250, height=60)
 button_add_pages = Button(main_window, text="Agregar páginas", fg="white", bg="#F37335",
                             font=("Lato", 20, "bold"), command=open_w_pages)
-button_add_pages.place(x=780, y=760, width=250, height=60)
+button_add_pages.place(x=980, y=260, width=250, height=60)
+
+#View files, apps and pages saved
+
+button_tell_files = Button(main_window, text="Archivos guardados", fg="white", bg="#000046",
+                            font=("Lato", 20, "bold"), command=talk_files)
+button_tell_files.place(x=1250, y=120, width=280, height=60)
+button_tell_apps = Button(main_window, text="Apps guardadas", fg="white", bg="#11998e",
+                            font=("Lato", 20, "bold"), command=talk_programs)
+button_tell_apps.place(x=1250, y=190, width=280, height=60)
+button_tell_pages = Button(main_window, text="Páginas guardadas", fg="white", bg="#F37335",
+                            font=("Lato", 20, "bold"), command=talk_pages)
+button_tell_pages.place(x=1250, y=260, width=280, height=60)
 
 main_window.mainloop()
